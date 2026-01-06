@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Notes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- THEME VARIABLES --- */
+        :root {
+            /* Default: Zinc Dark Mode */
+            --bg-main: #18181b;       /* Zinc-950 */
+            --bg-card: #27272a;       /* Zinc-800 */
+            --text-main: #f4f4f5;     /* Zinc-100 */
+            --text-muted: #a1a1aa;    /* Zinc-400 */
+            --border: #3f3f46;        /* Zinc-700 */
+            --accent: #e4e4e7;        /* Zinc-200 (White accent) */
+            --input-bg: #18181b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --radius: 12px;
+            --overlay: rgba(0, 0, 0, 0.8);
+        }
+
+        /* Light Mode Override */
+        [data-theme="light"] {
+            --bg-main: #f4f4f5;
+            --bg-card: #ffffff;
+            --text-main: #18181b;
+            --text-muted: #71717a;
+            --border: #e4e4e7;
+            --accent: #18181b;
+            --input-bg: #fafafa;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --overlay: rgba(0, 0, 0, 0.5);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 40px 20px;
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container { max-width: 1000px; margin: 0 auto; position: relative; }
+
+        /* --- HEADER & TOGGLE --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 { font-weight: 700; letter-spacing: -0.5px; }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+        .theme-toggle:hover { background: var(--border); }
+
+        /* --- INPUT AREA (Big Style) --- */
+        .input-card {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 50px;
+            border: 1px solid var(--border);
+        }
+
+        input, textarea {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: inherit;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        input#title { font-weight: 700; font-size: 1.2rem; }
+        textarea { height: 150px; resize: vertical; }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--text-muted);
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.05);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-main);
+            padding: 14px 28px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            float: right;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-primary:active { transform: scale(0.98); }
+        
+        .clearfix::after { content: ""; display: table; clear: both; }
+
+        /* --- NOTES GRID --- */
+        #notes-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        /* --- NOTE CARD --- */
+        .note {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 260px;
+        }
+
+        .note:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+            border-color: var(--text-muted);
+        }
+
+        .note-header {
+            /* Background color is set dynamically via JS */
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .note-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            white-space: nowrap; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 85%;
+        }
+
+        .note-body {
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            flex-grow: 1;
+            overflow: hidden;
+            mask-image: linear-gradient(180deg, #000 60%, transparent);
+            -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent);
+        }
+
+        .note-footer {
+            padding: 12px 20px;
+            background: rgba(0,0,0,0.2);
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .delete-btn {
+            color: #ef4444; 
+            font-weight: bold;
+            font-size: 1.2rem;
+            line-height: 1;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        .delete-btn:hover { background: rgba(239, 68, 68, 0.1); }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--overlay);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            border-radius: var(--radius);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.95);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal-card { transform: scale(1); }
+
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            /* Background color set by JS */
+        }
+        
+        .modal-title { font-size: 1.4rem; font-weight: 700; }
+        .modal-close { background: none; border: none; font-size: 2rem; cursor: pointer; color: var(--text-muted); line-height: 0.5; }
+        .modal-close:hover { color: var(--text-main); }
+
+        .modal-body {
+            padding: 32px;
+            overflow-y: auto;
+            font-size: 1.1rem;
+            white-space: pre-wrap;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>My Workspace</h1>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Switch Theme">☀/☾</button>
+        </header>
+
+        <div class="input-card clearfix">
+            <input type="text" id="title" placeholder="Note Title" required>
+            <textarea id="content" placeholder="Write your thoughts here..." required></textarea>
+            <button class="btn-primary" onclick="createNote()">Create Note</button>
+        </div>
+
+        <div id="notes-list"></div>
+    </div>
+
+    <div class="modal-overlay" id="noteModal" onclick="closeModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-header" id="modalHeader">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "/notes/";
+
+        // Glassy Colors (Translucent) for Dark Mode Compatibility
+        const headerColors = [
+            "rgba(107, 114, 128, 0.2)", // Gray
+            "rgba(59, 130, 246, 0.2)",  // Blue
+            "rgba(16, 185, 129, 0.2)",  // Emerald
+            "rgba(245, 158, 11, 0.2)",  // Amber
+            "rgba(239, 68, 68, 0.2)",   // Red
+            "rgba(139, 92, 246, 0.2)"   // Violet
+        ];
+
+        function getColorForNote(id) {
+            return headerColors[id % headerColors.length];
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const current = body.getAttribute('data-theme');
+            body.setAttribute('data-theme', current === 'light' ? 'dark' : 'light');
+        }
+
+        async function fetchNotes() {
+            try {
+                const response = await fetch(API_URL);
+                const notes = await response.json();
+                renderNotes(notes);
+            } catch (error) { console.error("Error", error); }
+        }
+
+        function renderNotes(notes) {
+            const list = document.getElementById('notes-list');
+            list.innerHTML = '';
+            
+            notes.reverse().forEach(note => {
+                const color = getColorForNote(note.id);
+                const div = document.createElement('div');
+                div.className = 'note';
+                div.onclick = () => openModal(note, color);
+
+                div.innerHTML = `
+                    <div class="note-header" style="background-color: ${color}">
+                        <div class="note-title">${note.title}</div>
+                        <div class="delete-btn" onclick="deleteNote(event, ${note.id})">×</div>
+                    </div>
+                    <div class="note-body">${note.content}</div>
+                    <div class="note-footer">
+                        <span>#${note.id}</span>
+                        <span>${new Date(note.created_at).toLocaleDateString()}</span>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function openModal(note, color) {
+            const modal = document.getElementById('noteModal');
+            document.getElementById('modalTitle').innerText = note.title;
+            document.getElementById('modalContent').innerText = note.content;
+            
+            if(color) {
+                document.getElementById('modalHeader').style.backgroundColor = color;
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal(event) {
+            document.getElementById('noteModal').classList.remove('active');
+        }
+
+        async function createNote() {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            if(!title || !content) return alert("Please fill both fields");
+
+            const btn = document.querySelector('.btn-primary');
+            const originalText = btn.innerText;
+            btn.innerText = "Saving...";
+            
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, content })
+            });
+            
+            document.getElementById('title').value = '';
+            document.getElementById('content').value = '';
+            btn.innerText = originalText;
+            fetchNotes();
+        }
+
+        async function deleteNote(event, id) {
+            event.stopPropagation();
+            if(confirm("Delete this note?")) {
+                await fetch(API_URL + id, { method: 'DELETE' });
+                fetchNotes();
+            }
+        }
+
+        fetchNotes();
+    </script>
+</body>
+</html>

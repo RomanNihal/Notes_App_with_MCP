@@ -1,0 +1,5 @@
+uv init
+
+uv add -r requirements.txt
+
+python -m uvicorn notes_app.main:app --reload
