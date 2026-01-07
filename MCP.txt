@@ -1,0 +1,9 @@
+The "notes_app" is complete. The next step is to make it MCP-enabled so that an AI assistant can access and interact with it.
+
+The MCP server will act as a translator between the AI and the existing Notes API. Without MCP, the AI is just a chatbot and has no awareness of the "notes_app". With MCP, the AI can discover and use tools such as read_notes to perform structured operations on the application.
+
+
+To implement this, we need two libraries:
+1. mcp: The official SDK to build the server.
+2. httpx: A modern Python library (like requests) to let the MCP server talk to the running "notes_app" API.
+command: uv add "mcp[cli]" httpx

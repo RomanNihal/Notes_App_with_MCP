@@ -2,4 +2,6 @@ uv init
 
 uv add -r requirements.txt
 
-python -m uvicorn notes_app.main:app --reload
+terminal 1: python -m uvicorn notes_app.main:app --reload (for the app)
+
+terminal 2: uv run mcp dev notes_app/notes_mcp.py (for MCP server)
